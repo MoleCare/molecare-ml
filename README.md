@@ -191,19 +191,12 @@ See the MoleCare DevBox doc: `docs/OPEN_SOURCE_SANITIZE_CHECKLIST.md`.
 Thank you to everyone who has helped molecare-ml.
 
 <!-- readme: contributors,bots/- -start -->
-<table>
-	<tbody>
-		<tr>
-			<td align="center">
-				<a href="https://github.com/YauhenBichel">
-					<img src="https://avatars.githubusercontent.com/YauhenBichel?s=48" width="48" alt="Yauhen Bichel" />
-					<br />
-					<sub><b>Yauhen Bichel</b></sub>
-				</a>
-			</td>
-		</tr>
-	</tbody>
-</table>
+<p align="center">
+  <img src=".github/contributors.svg" width="80" alt="Yauhen Bichel" />
+</p>
+<p align="center">
+  <a href="https://github.com/YauhenBichel">Yauhen Bichel</a>
+</p>
 <!-- readme: contributors,bots/- -end -->
 
 The list is filled by [Contributors](./.github/workflows/contributors.yml) from
