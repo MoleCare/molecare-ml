@@ -8,13 +8,13 @@
 #
 # Applied via: uv pip compile requirements.txt -c constraints.txt ...
 
-certifi>=2024.7.4
+certifi>=2026.7.22
 cryptography>=50.0.0
 filelock>=3.32.3
 fonttools>=4.60.2
 h11>=0.16.0
 httplib2>=0.32.0
-idna>=3.15
+idna>=3.19
 Jinja2>=3.1.6
 Markdown>=3.8.1
 MarkupSafe>=3.0.3
