@@ -35,10 +35,9 @@ jobs:
           persist-credentials: true
 
       - name: Fill README contributors
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: python3 .github/scripts/fill_contributors.py
+        uses: YauhenBichel/readme-contributors@dde1d84bb305e531a8f923263791b0767a6bdd7c # v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push the list on a writable branch
         if: >-
@@ -48,7 +47,7 @@ jobs:
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add README.md
+          git add README.md .github/contributors.svg
           git diff --cached --quiet && exit 0
           git commit -m "docs: refresh README contributors"
           git push
