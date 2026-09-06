@@ -114,7 +114,7 @@ markupsafe==3.0.3
     #   werkzeug
 mdurl==0.1.2
     # via markdown-it-py
-metaflow==2.19.38
+metaflow==2.19.39
     # via -r requirements.txt
 ml-dtypes==0.6.0
     # via
