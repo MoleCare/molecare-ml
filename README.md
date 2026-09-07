@@ -207,14 +207,3 @@ Licensed under the [Apache License 2.0](LICENSE).
 
 Third-party model and dataset licences still apply and are **not** granted by this licence — see
 [Training data and provenance](#training-data-and-provenance) below.
-
----
-
-## Contributors
-
-Thank you to everyone who has helped this project.
-
-<!-- readme: contributors,bots/- -start -->
-<!-- readme: contributors,bots/- -end -->
-
-The list is filled by GitHub Actions from commits (bots omitted). [Contributor graph](https://github.com/MoleCare/MoleCare-ML/graphs/contributors)
