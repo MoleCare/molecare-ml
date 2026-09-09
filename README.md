@@ -135,8 +135,10 @@ Publish large weights via **GitHub Releases** or object storage — avoid commit
 
 The models in this repository were trained on dermoscopic images from the
 **[ISIC Archive](https://www.isic-archive.com/)** (International Skin Imaging Collaboration).
-Sample images retained in `data/static/test_images/` carry their original ISIC identifiers
-(for example `ISIC_0034074.jpg`).
+No sample images ship in this repository: CI rejects image files, and the
+dermoscopic samples that once lived under `data/static/test_images/` were removed
+before the code was published. Historical commits reference them by their ISIC
+identifiers (for example `ISIC_0034074.jpg`).
 
 **No MoleCare user or patient images are included in this repository or its history.**
 
@@ -174,7 +176,7 @@ worse are as welcome as results that improve it.
 - Rotate any credential that ever appeared in git history
 - Keep nested product docs / runbooks out of this repository
 
-See the MoleCare DevBox doc: `docs/OPEN_SOURCE_SANITIZE_CHECKLIST.md`.
+See [SECURITY.md](./SECURITY.md) for how to report anything that slipped through.
 
 ---
 
