@@ -12,9 +12,9 @@
 
 set -euo pipefail
 
-REPO="${MODEL_REPO:-MoleCare/MoleCare-ML}"
+REPO="${MODEL_REPO:-MoleCare/molecare-ml}"
 TAG="${1:-${MODEL_RELEASE_TAG:-weights-v1}}"
-ASSET="${MODEL_ASSET:-xception-savedmodel.tar.gz}"
+ASSET="${MODEL_ASSET:-xception-savedmodel-v1.tar.gz}"
 DEST="${MODEL_DEST:-cnn-models}"
 
 if [ -d "$DEST/xception/1/variables" ]; then
