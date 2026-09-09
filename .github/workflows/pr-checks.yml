@@ -178,7 +178,10 @@ jobs:
       - name: Run tests
         # Model-dependent tests skip cleanly when cnn-models/ is absent, so this
         # does not need the weights downloaded.
-        run: python -m unittest discover -s tests -v
+        # pytest collects both the unittest.TestCase classes and the
+        # function-style tests (api contract, CORS, score polarity). unittest
+        # discover silently ran only the former: about 40 tests never executed.
+        run: python -m pytest tests -v -p no:cacheprovider
 
   docker-build:
     name: Docker build
