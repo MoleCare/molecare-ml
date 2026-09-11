@@ -1,54 +1,31 @@
 name: Contributors
 
-# Fills the README markers from the GitHub contributors API (commit order, bots
-# omitted). Names and counts are never hardcoded — a stale hand-written list is
-# worse than none.
+# The wall lives in readme-contributors as a reusable workflow and is written
+# straight to main after every merge, with no separate pull request.
 #
-# Does not open a pull request. A protected default branch refuses both a
-# GITHUB_TOKEN push and "Actions may create pull requests", so this writes only
-# on a same-repo pull request branch, or on workflow_dispatch of a
-# non-default branch.
+# It used to run on pull requests and push the refreshed wall to the PR
+# branch. That loses people: a fork's pull request cannot run it, and a
+# same-repository PR lands a wall computed before whatever merged ahead of it.
+# MoleCare/molecare-mcp lost a contributor that way, in 44 seconds. A run on
+# main after the merge sees every commit.
 #
-# No `push` trigger on purpose. With both push and pull_request the two runs
-# share a concurrency group, so one cancels the other and every pull request is
-# left showing a cancelled check that reads like a failure.
+# main is protected, so the wall pushes through the write deploy key stored as
+# CONTRIBUTORS_DEPLOY_KEY, the one bypass actor on the ruleset besides the
+# owner. `secrets: inherit` hands it over.
 
 on:
-  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 4 * * 0"
   workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: contributors-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
-
 jobs:
-  readme:
-    if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
-          persist-credentials: true
-
-      - name: Fill README contributors
-        uses: YauhenBichel/readme-contributors@25e0b067b5edec34206283138657dc8a8713d89a # reuse captions
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          format: html
-
-      - name: Push the list on a writable branch
-        if: >-
-          github.event.repository.default_branch != (github.head_ref || github.ref_name)
-          && (github.event_name != 'pull_request'
-              || github.event.pull_request.head.repo.full_name == github.repository)
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add README.md .github/contributors.svg .github/faces
-          git diff --cached --quiet && exit 0
-          git commit -m "docs: refresh README contributors"
-          git push
+  wall:
+    uses: YauhenBichel/readme-contributors/.github/workflows/wall.yml@2d1790d6a11795866916337238d212de87e06fad # v1.8.0
+    with:
+      format: html
+    secrets: inherit
