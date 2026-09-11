@@ -11,7 +11,12 @@ name: Contributors
 #
 # main is protected, so the wall pushes through the write deploy key stored as
 # CONTRIBUTORS_DEPLOY_KEY, the one bypass actor on the ruleset besides the
-# owner. `secrets: inherit` hands it over.
+# owner.
+#
+# The key is passed by name, not with `secrets: inherit`: inherit only reaches
+# a reusable workflow in the same organisation, and the wall lives under
+# YauhenBichel, so inherit passed nothing and the push fell back to the
+# workflow token, which the protected branch refuses.
 
 on:
   push:
@@ -28,4 +33,5 @@ jobs:
     uses: YauhenBichel/readme-contributors/.github/workflows/wall.yml@2d1790d6a11795866916337238d212de87e06fad # v1.8.0
     with:
       format: html
-    secrets: inherit
+    secrets:
+      CONTRIBUTORS_DEPLOY_KEY: ${{ secrets.CONTRIBUTORS_DEPLOY_KEY }}
