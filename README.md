@@ -90,6 +90,12 @@ Use localhost only; do not bake cloud credentials into images.
 
 ## Training (optional)
 
+**[doc/data.md](doc/data.md) is the first stop.** No images ship with this
+repository, the loader expects a particular directory layout, and every open
+issue that needs the held-out test split starts there. It covers getting images
+from ISIC, the exact layout, why splitting at random inflates the score, and
+which class index melanoma actually is.
+
 - Experiment notebooks live under `training-notebooks/`
 - Metaflow flow: `flows/training_flow.py` (set your own S3 bucket via env/flags)
 - Public derm datasets (e.g. Kaggle) have **their own licenses** — document provenance before redistributing weights or images
@@ -154,7 +160,8 @@ Contributions are welcome. **Start with [CONTRIBUTING.md](CONTRIBUTING.md)** —
 
 - [MODEL_CARD.md](MODEL_CARD.md) — what the model is, what was measured, and what was not
 - [SECURITY.md](SECURITY.md) — reporting a vulnerability or a clinical-safety concern
-- [Good first issues](https://github.com/MoleCare/MoleCare-ML/labels/good%20first%20issue)
+- [doc/data.md](doc/data.md) — how to get the training data, which most issues need first
+- [Good first issues](https://github.com/MoleCare/molecare-ml/labels/good%20first%20issue)
 
 The open problem we care most about is **performance across Fitzpatrick skin types**, which is
 currently unmeasured. [Why our 94% accuracy number means very little](doc/94-percent-accurate.md)
@@ -183,7 +190,7 @@ See [SECURITY.md](./SECURITY.md) for how to report anything that slipped through
 ## Related
 
 - [MoleCare](https://www.molecare.co.uk/)
-- MoleCare MCP server (assistant / ops tools)
+- [molecare-mcp](https://github.com/MoleCare/molecare-mcp) — MCP server, assistant and ops tools
 - Mobile apps on [App Store](https://apps.apple.com/us/app/molecare/id1448635328) and [Google Play](https://play.google.com/store/apps/details?id=com.mymolecare)
 
 ---
