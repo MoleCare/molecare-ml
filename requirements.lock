@@ -158,7 +158,7 @@ pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
-protobuf==7.36.0
+protobuf==7.36.2
     # via
     #   -c constraints.txt
     #   tensorflow
