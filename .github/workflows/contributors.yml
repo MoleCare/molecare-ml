@@ -30,7 +30,7 @@ permissions:
 
 jobs:
   wall:
-    uses: YauhenBichel/readme-contributors/.github/workflows/wall.yml@2d1790d6a11795866916337238d212de87e06fad # v1.8.0
+    uses: YauhenBichel/readme-contributors/.github/workflows/wall.yml@6102d1fa62437f9f04020fe53627d503ac3dd26e # v1.9.1
     with:
       format: html
     secrets:
