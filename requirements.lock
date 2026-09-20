@@ -10,11 +10,11 @@ astunparse==1.6.3
     # via tensorflow
 blinker==1.9.0
     # via flask
-boto3==1.43.89
+boto3==1.43.98
     # via
     #   -r requirements.txt
     #   metaflow
-botocore==1.43.89
+botocore==1.43.98
     # via
     #   boto3
     #   s3transfer
