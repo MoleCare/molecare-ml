@@ -16,7 +16,7 @@ keras>=3.15.1
 # until the model is re-exported to the Keras 3 .keras format.
 tf-keras>=2.21.0
 numpy>=2.5.3
-scikit-learn>=1.9.0
+scikit-learn>=1.9.1
 opencv-python-headless>=5.0.0.93,<6.0.0
 Pillow>=12.3.0
 
