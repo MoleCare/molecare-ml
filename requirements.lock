@@ -124,7 +124,7 @@ namex==0.1.0
     # via keras
 narwhals==2.25.0
     # via scikit-learn
-numpy==2.5.2
+numpy==2.5.3
     # via
     #   -r requirements.txt
     #   h5py
