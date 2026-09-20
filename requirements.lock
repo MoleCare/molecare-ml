@@ -196,7 +196,7 @@ rich==15.0.0
     # via keras
 s3transfer==0.19.2
     # via boto3
-scikit-learn==1.9.0
+scikit-learn==1.9.1
     # via -r requirements.txt
 scipy==1.18.1
     # via scikit-learn
