@@ -61,6 +61,21 @@ The comparison notebook records the metrics that should gate any future deployme
 These are **targets, not results.** Any figures in the notebooks labelled "expected" are
 projections from proposed training changes, not measurements.
 
+Turning them into results now needs only the held-out test split and the deployed
+weights, because the measurement itself is written:
+
+```bash
+scripts/fetch-model.sh
+python scripts/evaluate.py --model-path ./cnn-models/xception/1 --test-dir <test split>
+```
+
+`scripts/evaluate.py` predicts through the serving path — the same image
+preprocessing and the same `melanoma_probability` helper the API uses — and prints
+sensitivity, specificity, AUC-ROC, the confusion matrix, and how the two trade
+across thresholds, in a block shaped to replace this section. It exits non-zero when
+sensitivity misses the 0.85 target above. Nothing in this repository carries test
+images, so the run has to happen somewhere that has them ([#23](https://github.com/MoleCare/molecare-ml/issues/23)).
+
 ## Known limitations and biases
 
 - **Skin tone.** Public dermoscopic datasets over-represent lighter skin, and this model
