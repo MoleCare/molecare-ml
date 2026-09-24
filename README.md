@@ -18,6 +18,18 @@ Flask / TensorFlow service for **research and educational** mole-image analysis 
 
 ---
 
+## What kind of model this is
+
+**An image classifier — a convolutional neural network (CNN).** It takes one
+picture and returns scores for a fixed set of classes. It does not generate text,
+does not hold a conversation, and is not a language model of any kind.
+
+Here that is **Xception**: 20.9M parameters, 299×299 input, a TensorFlow
+SavedModel of about 88 MB served by Flask. Test accuracy is 0.9422, and that is
+the only thing measured — see the note above. The optional
+`/predict-advanced` path can add [Google Derm Foundation](https://huggingface.co/google/derm-foundation)
+embeddings, which is a gated vision foundation model, not part of this one.
+
 ## Features
 
 | Endpoint area | What it does |
