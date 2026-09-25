@@ -20,9 +20,12 @@ that split is not recorded anywhere.
   oldest third of the archive to 0.8279 on the newest. That gap is consistent with the
   model having trained on some of the old images, or with newer images being harder.
   The data cannot separate the two.
-- **The app's escalation bands sit where sensitivity is lowest.**
-  `mole_analysis_service.py` marks a result `very_high` and `urgent` when P(melanoma)
-  is at least 0.80, and `high` at 0.60. At 0.80 the model finds 12–18% of melanomas.
+- **The risk level people see does not come from this model at all.** In production
+  `/analyze` never loads the model, so its risk bands run on the ABCDE image heuristic
+  alone — which, on 2,000 of these images, separates melanoma from benign moles barely
+  better than chance (AUC 0.5378) and can never reach `urgent`. See
+  [#102](https://github.com/MoleCare/molecare-ml/issues/102) and
+  [the escalation bands](#the-escalation-bands) below.
 
 ## What was measured
 
@@ -84,12 +87,39 @@ elif combined_score >= 0.45 or ml_risk >= 0.6:
     risk_level = "high"
 ```
 
-`ml_risk` is P(melanoma) — checked, not the raw inverted score. On the model score alone,
-`ml_risk >= 0.8` catches 12.1% of melanomas across all images and 18.4% on recent ones;
-`ml_risk >= 0.6` catches 23.7% and 28.7%. The bands also combine an ABCDE score, which
-this measurement does not include, so the bands as users see them may flag more than the
-model alone. Changing them is a product and clinical decision, not a code fix, and is
-tracked separately.
+**In production the model never reaches these bands.** `prediction_controller.py` and
+`evolution_analysis_service.py` build `MoleAnalysisService()` with no model path, so
+`ml_risk` stays at its placeholder of 0.5 and the model contributes nothing. (Passing the
+path would not help on its own: `_load_ml_model` uses `tf.keras.models.load_model`, which
+Keras 3 refuses for this artefact.)
+
+With the model absent, the combined score is half the ABCDE score. The ABCDE score is
+capped at 1.0, so the combined score can never exceed 0.5 — and `very_high`, the only
+band that sets `urgent`, needs 0.65. **`urgent` cannot fire.**
+
+Measured by running `analyze_mole` exactly as production builds it, on 1,000 melanomas
+and 1,000 benign moles from this set:
+
+| | Melanomas | Benign moles |
+|---|---|---|
+| `low` | 251 | 336 |
+| `moderate` | 749 | 663 |
+| `high` | **0** | 1 |
+| `very_high` / `urgent` | 0 | 0 |
+| `melanoma_probability` returned | 0.5, every time | 0.5, every time |
+
+AUC of the score behind the bands: **0.5378**. The label people see tells a melanoma from
+a benign mole barely better than chance, and calls 66% of benign moles "moderate".
+
+**If the model were connected**, the model-only figures from the tables above would
+apply: `ml_risk >= 0.8` catches 12.1% of melanomas across all images and 18.4% on recent
+ones; `ml_risk >= 0.6` catches 23.7% and 28.7%. So connecting it would switch on an
+`urgent` banner that stays silent for most melanomas.
+
+What `/analyze` should promise is a product and clinical decision, tracked in
+[#100](https://github.com/MoleCare/molecare-ml/issues/100) and
+[#102](https://github.com/MoleCare/molecare-ml/issues/102). Reproduce with
+`python scripts/measure-analyze-bands.py 1000`.
 
 ## What these numbers cannot tell you
 
@@ -146,6 +176,7 @@ ln -s ../isic-raw/ben-all data/isic-eval/NotMelanoma
 python scripts/evaluate.py --test-dir data/isic-eval --dataset-name "23,304 ISIC images"
 python scripts/make-era-sets.py        # oldest and newest thirds by isic_id
 python scripts/compare-preprocessing.py 800
+python scripts/measure-analyze-bands.py 1000   # /analyze exactly as production builds it
 ```
 
 The archive changes over time, so a later run will not return exactly these images.
