@@ -90,6 +90,12 @@ def main() -> int:
     parser.add_argument("--threshold", type=float, default=0.5, help="Operating threshold on P(melanoma)")
     parser.add_argument("--markdown", type=Path, help="Write the model card block here")
     parser.add_argument("--json", dest="json_out", type=Path, help="Write the raw numbers here")
+    parser.add_argument(
+        "--dataset-name",
+        default="the evaluation set",
+        help='What was measured, for the report heading, e.g. "23,304 ISIC images". '
+        "Do not call it the held-out split unless it is the one the model was tested on.",
+    )
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
@@ -116,7 +122,7 @@ def main() -> int:
     result = metrics.evaluate(labels, scores, args.threshold)
     sweep = metrics.threshold_sweep(labels, scores)
     result["threshold_for_target_sensitivity"] = metrics.threshold_for_sensitivity(labels, scores)
-    report = metrics.markdown_report(result, sweep)
+    report = metrics.markdown_report(result, sweep, dataset=args.dataset_name)
 
     print(report)
 
