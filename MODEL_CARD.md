@@ -41,16 +41,41 @@ Measured on a held-out test split, 50 epochs, batch size 16:
 | DenseNet201 | 0.9369 | 0.1974 | 18.4 | 224×224 |
 | VGG16 | 0.8270 | 0.4212 | 14.7 | 224×224 |
 
-### What these numbers do not tell you
+That table is the only thing measured when the model was trained, and the split it used
+was never recorded. **94% accuracy should not be read as "94% reliable"**: accuracy on a
+class-imbalanced set can look strong while the model misses most melanomas.
 
-**Only accuracy was measured. Sensitivity, specificity and AUC-ROC were not.**
+### Sensitivity, specificity and AUC — measured
 
-For a melanoma classifier this is the limitation that matters most. Accuracy on a
-class-imbalanced dataset can look strong while the model misses a large share of actual
-melanomas — and a false negative here is the dangerous error. Until sensitivity and AUC are
-measured and published, **94% accuracy should not be read as "94% reliable"**.
+Measured on 25 September 2026 against ISIC dermoscopic images, through the serving path.
+Full method, sweeps and caveats: **[doc/measured-metrics.md](doc/measured-metrics.md)**.
 
-The comparison notebook records the metrics that should gate any future deployment:
+| Set | Images | AUC-ROC | Sensitivity @ 0.50 | Specificity @ 0.50 |
+|---|---|---|---|---|
+| All | 23,304 | 0.9113 | 0.3184 | 0.9828 |
+| Oldest third by `isic_id` | 7,756 | 0.9371 | 0.3229 | 0.9860 |
+| **Newest third by `isic_id`** | 7,756 | **0.8279** | **0.3506** | 0.9667 |
+| *Proposed minimum* | | *≥ 0.90* | *≥ 0.85* | *≥ 0.80* |
+
+What they say:
+
+- **At the default threshold of 0.50 the model finds about one melanoma in three.**
+  On all 23,304 images it missed 7,705 of 11,304.
+- **On recent melanomas it misses the targets at every threshold.** The newest third is
+  the best available guard against images the model trained on, and its AUC of 0.8279 is
+  below 0.90. It is also an optimistic figure, because the benign images in that third are
+  older ones.
+- **A lower threshold helps on familiar images far more than on new ones.** At 0.10 both
+  targets are met on the full set (0.861 / 0.812) but not on the newest third
+  (0.835 / 0.625).
+- **Old images score much better than new ones** — AUC 0.9371 against 0.8279. That fits
+  the model having trained on some of the old images, or newer images being harder. The
+  data cannot separate the two, because nothing recorded what it trained on.
+
+**This is not the original held-out split** and is not directly comparable to the 0.9422
+above. It is dermoscopy only, and says nothing about phone photos or skin tone.
+
+The comparison notebook's minimums still stand as the bar for deployment:
 
 | Metric | Why it matters | Proposed minimum |
 |---|---|---|
@@ -58,23 +83,7 @@ The comparison notebook records the metrics that should gate any future deployme
 | AUC-ROC | Best single discrimination measure | ≥ 0.90 |
 | Specificity | Limits unnecessary biopsies and alarm | ≥ 0.80 |
 
-These are **targets, not results.** Any figures in the notebooks labelled "expected" are
-projections from proposed training changes, not measurements.
-
-Turning them into results now needs only the held-out test split and the deployed
-weights, because the measurement itself is written:
-
-```bash
-scripts/fetch-model.sh
-python scripts/evaluate.py --model-path ./cnn-models/xception/1 --test-dir <test split>
-```
-
-`scripts/evaluate.py` predicts through the serving path — the same image
-preprocessing and the same `melanoma_probability` helper the API uses — and prints
-sensitivity, specificity, AUC-ROC, the confusion matrix, and how the two trade
-across thresholds, in a block shaped to replace this section. It exits non-zero when
-sensitivity misses the 0.85 target above. Nothing in this repository carries test
-images, so the run has to happen somewhere that has them ([#23](https://github.com/MoleCare/molecare-ml/issues/23)).
+The deployed model does not meet them on recent images.
 
 ## Known limitations and biases
 

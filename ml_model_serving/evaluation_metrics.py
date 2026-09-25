@@ -148,14 +148,24 @@ def _pct(value: float) -> str:
     return "n/a" if np.isnan(value) else f"{value:.4f}"
 
 
-def markdown_report(result: dict, sweep: list[dict], model_name: str = "Xception") -> str:
-    """The block to paste into MODEL_CARD.md, targets marked met or not."""
+def markdown_report(
+    result: dict,
+    sweep: list[dict],
+    model_name: str = "Xception",
+    dataset: str = "the evaluation set",
+) -> str:
+    """The block to paste into MODEL_CARD.md, targets marked met or not.
+
+    `dataset` names what was measured. It is deliberately not assumed to be the
+    original held-out split: that split is not recorded anywhere, and a heading
+    that claimed it would be the most misleading line in the card.
+    """
     counts = result["counts"]
     met = result["meets_targets"]
     tick = {True: "met", False: "**not met**"}
 
     lines = [
-        f"### Measured on the held-out test split ({result['n']} images, "
+        f"### Measured on {dataset} ({result['n']} images, "
         f"{result['prevalence']:.1%} melanoma)",
         "",
         f"Model: **{model_name}**. Melanoma is the positive class. "

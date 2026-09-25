@@ -11,10 +11,10 @@ Flask / TensorFlow service for **research and educational** mole-image analysis 
 > **Not a medical device.** Predictions and ABCDE helpers are **not** diagnoses. Always seek care from a qualified clinician for concerning skin changes.
 
 <p align="center">
-  <img src="doc/img/evaluation-gap.svg" alt="Test accuracy is measured at 0.9422. Sensitivity, specificity and AUC-ROC are not measured; their proposed minimums are 0.85, 0.80 and 0.90." width="720">
+  <img src="doc/img/evaluation-gap.svg" alt="On 3,756 recent ISIC melanomas and 4,000 benign moles at threshold 0.50: sensitivity 0.3506 against a target of 0.85, specificity 0.9667 against 0.80, AUC-ROC 0.8279 against 0.90." width="720">
 </p>
 
-<p align="center"><em>94% accuracy is the only thing that was measured. <a href="doc/94-percent-accurate.md">Why that means very little</a> · <a href="https://github.com/MoleCare/molecare-ml/issues/23">help measure the rest</a></em></p>
+<p align="center"><em>Sensitivity and AUC are now measured, and the model misses its targets on recent images. <a href="doc/measured-metrics.md">The results and their limits</a> · <a href="doc/94-percent-accurate.md">why 94% meant very little</a></em></p>
 
 ---
 

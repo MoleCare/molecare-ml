@@ -140,3 +140,18 @@ def test_roc_points_are_ordered_and_bounded():
     for point in points:
         assert 0.0 <= point["false_positive_rate"] <= 1.0
         assert 0.0 <= point["sensitivity"] <= 1.0
+
+
+def test_the_heading_never_claims_the_held_out_split_by_default():
+    """The original split is not recorded anywhere, so a report must not call
+    whatever it measured "the held-out test split" unless told to."""
+    y_true = [0, 0, 1, 1]
+    y_score = [0.1, 0.4, 0.6, 0.9]
+    result = evaluate(y_true, y_score)
+
+    default = markdown_report(result, threshold_sweep(y_true, y_score))
+    assert "held-out" not in default
+    assert "the evaluation set" in default
+
+    named = markdown_report(result, threshold_sweep(y_true, y_score), dataset="23,304 ISIC images")
+    assert "Measured on 23,304 ISIC images" in named
