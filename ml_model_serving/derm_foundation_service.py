@@ -4,9 +4,22 @@ Derm Foundation Service - Advanced AI Analysis using Google's Derm Foundation mo
 This service uses Google's Derm Foundation model from Hugging Face to generate
 dermatology-specific embeddings, which are then classified using a trained classifier.
 
+STATUS: LEGACY, AND NOT CURRENTLY WIRED UP.
+Google's model card now says Derm Foundation "is now legacy, but remains available
+for existing applications", and points new development at MedSigLIP instead:
+https://developers.google.com/health-ai-developer-foundations/derm-foundation/model-card
+
+Nothing here runs today either way. `DERM_FOUNDATION_AVAILABLE` only turns true once
+a trained classifier and scaler load, and neither artefact is in this repository -
+`scripts/train_derm_classifier.py` is what would produce them. So this is scaffolding.
+Before building on it, decide whether to point it at MedSigLIP or remove it; do not
+add to it as it stands.
+
 LEGAL NOTICE:
 This tool is not a medical device and does not provide medical diagnosis.
-Uses Google Health AI Developer Foundations under their Terms of Use.
+Uses Google Health AI Developer Foundations under their Terms of Use, which define
+Clinical Use as "any use in diagnosis or treatment of patients" and make the
+developer solely responsible for validating any downstream application.
 Always consult a qualified healthcare professional for medical advice.
 
 Requirements:

@@ -84,6 +84,14 @@ images, so the run has to happen somewhere that has them ([#23](https://github.c
   important open problem in the repository.
 - **Image quality.** Trained on dermoscopic images. Consumer phone photos differ in lighting,
   focus and scale, and performance on them is not characterised.
+
+Those two limitations share a candidate answer. Google's [SCIN dataset](https://github.com/google-research-datasets/scin)
+is open access, is made of **consumer phone photos** rather than dermoscopy, and carries
+estimated Fitzpatrick skin type and Monk Skin Tone labels — which is what measuring the
+first two bullets needs. It will not close the sensitivity gap above: roughly 89% of it is
+allergic, infectious and inflammatory conditions, and it does not cover melanoma. It can
+show whether this model behaves differently across skin tones on the kind of photo people
+actually send; it cannot show how many melanomas it misses.
 - **Binary framing.** Melanoma vs not-melanoma collapses many diagnoses into one negative class.
   It cannot distinguish among non-melanoma conditions.
 - **No calibration.** Output scores are not calibrated probabilities and should not be presented
