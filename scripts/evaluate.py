@@ -25,8 +25,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
+
+# `python scripts/evaluate.py` puts scripts/ on sys.path, not the repository
+# root, so `ml_model_serving` would not import however you invoked it. Add the
+# root explicitly rather than making callers set PYTHONPATH.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -45,18 +51,26 @@ def find_images(test_dir: Path, melanoma_dir: str | None) -> list[tuple[Path, in
     return labelled
 
 
-def score_images(model, images: list[tuple[Path, int]], quiet: bool) -> tuple[list[int], list[float]]:
+def score_images(images: list[tuple[Path, int]], quiet: bool) -> tuple[list[int], list[float]]:
     """Run every image through the serving path. Returns (labels, P(melanoma))."""
     from ml_model_serving.image_processor import ImageProcessor
-    from ml_model_serving.model_prediction_service import melanoma_probability
+    from ml_model_serving.model_prediction_service import (
+        ModelPredictionService,
+        melanoma_probability,
+    )
 
     processor = ImageProcessor()
+    # The service owns loading. It knows the bundled artefact is a Keras 2
+    # SavedModel and reaches for tf_keras, which Keras 3 cannot do - and using
+    # it here is what makes "measured through the serving path" true of the
+    # prediction as well as the preprocessing.
+    service = ModelPredictionService()
     labels: list[int] = []
     scores: list[float] = []
 
     for index, (path, label) in enumerate(images, start=1):
         prepared = processor.prepare_input_from_bytes(path.read_bytes())
-        raw = model.predict(prepared, verbose=0)[0][0]
+        raw = service.predict_model(prepared)[0][0]
         labels.append(label)
         scores.append(melanoma_probability(raw))
         if not quiet and index % 50 == 0:
@@ -67,7 +81,10 @@ def score_images(model, images: list[tuple[Path, int]], quiet: bool) -> tuple[li
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--model-path", required=True, help="TensorFlow SavedModel directory")
+    parser.add_argument(
+        "--model-path",
+        help="SavedModel directory. Defaults to MODEL_PATH, the same variable the service reads.",
+    )
     parser.add_argument("--test-dir", required=True, type=Path, help="Test split, one folder per class")
     parser.add_argument("--melanoma-dir", help="Name of the melanoma folder, if it is not obvious")
     parser.add_argument("--threshold", type=float, default=0.5, help="Operating threshold on P(melanoma)")
@@ -75,6 +92,11 @@ def main() -> int:
     parser.add_argument("--json", dest="json_out", type=Path, help="Write the raw numbers here")
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
+
+    # The service reads MODEL_PATH when its class is defined, so this has to be
+    # set before `ml_model_serving` is imported anywhere below.
+    if args.model_path:
+        os.environ["MODEL_PATH"] = args.model_path
 
     from ml_model_serving import evaluation_metrics as metrics
 
@@ -89,10 +111,7 @@ def main() -> int:
     if not args.quiet:
         print(f"{len(images)} images, {positives} melanoma", file=sys.stderr)
 
-    import tensorflow as tf
-
-    model = tf.keras.models.load_model(args.model_path)
-    labels, scores = score_images(model, images, args.quiet)
+    labels, scores = score_images(images, args.quiet)
 
     result = metrics.evaluate(labels, scores, args.threshold)
     sweep = metrics.threshold_sweep(labels, scores)
