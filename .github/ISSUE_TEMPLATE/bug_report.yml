@@ -2,6 +2,12 @@ name: Bug report
 description: Something is not working as expected
 labels: ["bug"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not attach real skin photographs, account details, or tokens.**
+        Issues here are public. A drawing, a stock photo, or a description of
+        what the picture showed is enough for us to reproduce most things.
   - type: textarea
     id: what-happened
     attributes:

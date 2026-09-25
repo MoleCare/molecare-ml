@@ -60,7 +60,12 @@ jobs:
           FILES=$(git diff --name-only --diff-filter=AM "$BASE" "$HEAD")
           echo "Files changed:"; echo "$FILES" | sed 's/^/  /'
 
-          BAD=$(echo "$FILES" | grep -iE '\.(pem|key|p12|pfx)$|service-account.*\.json$|kaggle\.json$|(^|/)\.env' || true)
+          # .env.example is the one env file that belongs in the tree: it holds
+          # placeholders, .gitignore whitelists it, and a new clone copies it.
+          # Everything else matching .env stays blocked, including .env.local
+          # and .env.production.
+          CANDIDATES=$(echo "$FILES" | grep -vE '(^|/)\.env\.example$' || true)
+          BAD=$(echo "$CANDIDATES" | grep -iE '\.(pem|key|p12|pfx)$|service-account.*\.json$|kaggle\.json$|(^|/)\.env' || true)
           if [ -n "$BAD" ]; then
             echo "::error::Credential or key files must never be committed:"
             echo "$BAD" | sed 's/^/  /'
