@@ -101,7 +101,11 @@ class MoleAnalysisService:
             logger.warning(f"Could not load ML model: {e}")
 
     def _load_derm_foundation(self):
-        """Load Google Derm Foundation model."""
+        """Load Google Derm Foundation model.
+
+        Legacy: Google points new development at MedSigLIP. See the status note in
+        `derm_foundation_service` and the README before extending this path.
+        """
         try:
             from huggingface_hub import from_pretrained_keras
             self.derm_model = from_pretrained_keras("google/derm-foundation")

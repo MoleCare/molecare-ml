@@ -27,8 +27,9 @@ does not hold a conversation, and is not a language model of any kind.
 Here that is **Xception**: 20.9M parameters, 299×299 input, a TensorFlow
 SavedModel of about 88 MB served by Flask. Test accuracy is 0.9422, and that is
 the only thing measured — see the note above. The optional
-`/predict-advanced` path can add [Google Derm Foundation](https://huggingface.co/google/derm-foundation)
-embeddings, which is a gated vision foundation model, not part of this one.
+`/predict-advanced` path is scaffolded for [Google Derm Foundation](https://huggingface.co/google/derm-foundation)
+embeddings, a separate gated vision foundation model that Google now calls legacy
+— see [Derm Foundation, and what replaces it](#derm-foundation-and-what-replaces-it).
 
 ## Features
 
@@ -41,7 +42,32 @@ embeddings, which is a gated vision foundation model, not part of this one.
 | `/predict-advanced`, `/compare-models` | Multi-model / premium paths (optional) |
 | `/health` | Liveness |
 
-Optional: Google [Derm Foundation](https://huggingface.co/google/derm-foundation) embeddings (gated model; requires Hugging Face token + acceptance of Google Health AI terms).
+Optional: Google [Derm Foundation](https://huggingface.co/google/derm-foundation) embeddings (gated model; requires Hugging Face token + acceptance of Google Health AI terms). See the status note below before building on it.
+
+## Derm Foundation, and what replaces it
+
+Two things are true about the `/predict-advanced` path, and both should be known
+before anyone extends it.
+
+**It does not run today.** `DERM_FOUNDATION_AVAILABLE` turns true only once a trained
+classifier and scaler load, and neither artefact is in this repository;
+`scripts/train_derm_classifier.py` is what would produce them. The path is scaffolding.
+
+**The model it is aimed at is legacy.** Google's model card now states that Derm
+Foundation *"is now legacy, but remains available for existing applications"*, and
+points new development at
+[MedSigLIP](https://developers.google.com/health-ai-developer-foundations/medsiglip/model-card)
+— a 400M-parameter image/text encoder at 448×448 that also does zero-shot
+classification and semantic retrieval, rather than embeddings alone.
+
+So the choice is to repoint this path at MedSigLIP or to delete it, and that choice is
+not only technical. The
+[HAI-DEF terms](https://developers.google.com/health-ai-developer-foundations/terms)
+define Clinical Use as *"any use in diagnosis or treatment of patients"*, require
+Health Regulatory Authorization from the relevant authority where applicable, and make
+the developer solely responsible for validating the result. Measuring what is already
+deployed ([#23](https://github.com/MoleCare/molecare-ml/issues/23)) comes first: without
+sensitivity and AUC for the current model, a swap cannot be shown to have helped.
 
 ---
 
