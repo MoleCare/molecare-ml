@@ -59,3 +59,6 @@ molecare-docs/
 
 # uv scratch lock from ad-hoc `uv run --with ...` invocations
 uv.lock
+
+# Dependency scan report (scripts/vulnerability-gate.sh)
+osv-report.json

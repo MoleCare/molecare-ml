@@ -1,0 +1,9 @@
+# What the dependency gate (scripts/vulnerability-gate.sh) leaves out, and why.
+#
+# Every [[IgnoredVulns]] entry needs a reason and an ignoreUntil date. When the
+# date passes, the gate fails again and the entry must be re-justified or
+# removed. Anything that can be fixed is fixed by upgrading (in
+# requirements.txt or constraints.txt, then regenerating requirements.lock).
+#
+# Empty on purpose: requirements.lock had no high or critical advisories when
+# the gate was added on 29 September 2026.
