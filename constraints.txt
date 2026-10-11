@@ -9,7 +9,7 @@
 # Applied via: uv pip compile requirements.txt -c constraints.txt ...
 
 certifi>=2026.7.22
-cryptography>=50.0.0
+cryptography>=50.0.2
 filelock>=4.0.8
 fonttools>=4.60.2
 h11>=0.16.0
