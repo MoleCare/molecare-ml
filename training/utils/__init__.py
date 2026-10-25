@@ -11,6 +11,7 @@ from .data_loader import DataLoader, create_data_generators
 from .experiment_tracker import ExperimentTracker
 from .metrics import MedicalMetrics, calculate_metrics
 from .model_factory import SUPPORTED_MODELS, ModelFactory
+from .reproducibility import environment_info, save_environment, set_seed
 
 __all__ = [
     'DataLoader',
@@ -22,4 +23,7 @@ __all__ = [
     'calculate_metrics',
     'ExperimentTracker',
     'TrainingConfig',
+    'set_seed',
+    'environment_info',
+    'save_environment',
 ]

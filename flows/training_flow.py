@@ -117,6 +117,66 @@ class MelanomaTrainingFlow(FlowSpec):
         default=True
     )
 
+    seed = Parameter(
+        'seed',
+        help='Seed for Python, NumPy, TensorFlow, the data split and shuffling',
+        default=42,
+        type=int
+    )
+
+    deterministic = Parameter(
+        'deterministic',
+        help='TensorFlow op determinism (reproducible GPU runs, slower)',
+        default=False,
+        type=bool
+    )
+
+    def _seed_everything(self):
+        """Seed every generator this step uses (each Metaflow step is its own
+        process). Same steps as training/utils/reproducibility.set_seed, kept
+        here because Metaflow only packages this folder for remote steps."""
+        import random
+
+        import numpy as np
+
+        os.environ['PYTHONHASHSEED'] = str(self.seed)
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+        try:
+            import tensorflow as tf
+        except ImportError:
+            return
+        tf.random.set_seed(self.seed)
+        if self.deterministic:
+            tf.config.experimental.enable_op_determinism()
+
+    def _environment(self):
+        """Versions that explain a difference between runs on two machines."""
+        import importlib.metadata
+        import platform
+        import sys
+
+        info = {
+            'python': sys.version.split()[0],
+            'platform': platform.platform(),
+            'packages': sorted(
+                f"{d.metadata['Name']}=={d.version}"
+                for d in importlib.metadata.distributions() if d.metadata['Name']
+            ),
+        }
+        try:
+            import tensorflow as tf
+            build = dict(tf.sysconfig.get_build_info())
+            info.update({
+                'tensorflow': tf.__version__,
+                'cuda': build.get('cuda_version'),
+                'cudnn': build.get('cudnn_version'),
+                'gpus': [g.name for g in tf.config.list_physical_devices('GPU')],
+            })
+        except Exception:
+            pass
+        return info
+
     # ================================================================
     # Step: Start
     # ================================================================
@@ -158,6 +218,8 @@ class MelanomaTrainingFlow(FlowSpec):
             "lr_stage1": self.lr_stage1,
             "lr_stage2": self.lr_stage2,
             "use_class_weights": self.use_class_weights,
+            "seed": self.seed,
+            "deterministic": self.deterministic,
             "two_stage_training": True,
             "data_augmentation": True,
         }
@@ -201,6 +263,8 @@ class MelanomaTrainingFlow(FlowSpec):
         print("\n" + "=" * 60)
         print("PREPARING DATA")
         print("=" * 60)
+
+        self._seed_everything()
 
         wandb.init(
             project="molecare-melanoma",
@@ -298,8 +362,10 @@ class MelanomaTrainingFlow(FlowSpec):
 
         for cls in ['Melanoma', 'NotMelanoma']:
             src_dir = os.path.join(self.melanoma_dir, cls)
-            files = [f for f in os.listdir(src_dir) if os.path.getsize(os.path.join(src_dir, f)) > 0]
-            random.shuffle(files)
+            # Sorted first: os.listdir order depends on the filesystem, so a
+            # seeded shuffle of it would still split differently per machine.
+            files = sorted(f for f in os.listdir(src_dir) if os.path.getsize(os.path.join(src_dir, f)) > 0)
+            random.Random(self.seed).shuffle(files)
 
             n = len(files)
             n_test = int(n * test_split)
@@ -344,6 +410,12 @@ class MelanomaTrainingFlow(FlowSpec):
         print("STAGE 1: TRAINING CLASSIFICATION HEAD")
         print("=" * 60)
 
+        self._seed_everything()
+        self.training_environment = self._environment()
+        print(f"Environment: Python {self.training_environment['python']}, "
+              f"TensorFlow {self.training_environment.get('tensorflow')}, "
+              f"CUDA {self.training_environment.get('cuda')}")
+
         wandb.init(
             project="molecare-melanoma",
             resume="allow",
@@ -373,7 +445,8 @@ class MelanomaTrainingFlow(FlowSpec):
                 target_size=self.input_shape,
                 batch_size=self.batch_size,
                 class_mode='binary',
-                shuffle=True
+                shuffle=True,
+                seed=self.seed
             )
 
             val_generator = val_datagen.flow_from_directory(
@@ -521,6 +594,8 @@ class MelanomaTrainingFlow(FlowSpec):
         print("STAGE 2: FINE-TUNING BASE MODEL")
         print("=" * 60)
 
+        self._seed_everything()
+
         wandb.init(
             project="molecare-melanoma",
             resume="allow",
@@ -581,7 +656,8 @@ class MelanomaTrainingFlow(FlowSpec):
                 target_size=self.input_shape,
                 batch_size=self.batch_size,
                 class_mode='binary',
-                shuffle=True
+                shuffle=True,
+                seed=self.seed
             )
 
             val_generator = val_datagen.flow_from_directory(
@@ -652,6 +728,8 @@ class MelanomaTrainingFlow(FlowSpec):
         print("\n" + "=" * 60)
         print("EVALUATING ON TEST SET")
         print("=" * 60)
+
+        self._seed_everything()
 
         wandb.init(
             project="molecare-melanoma",
