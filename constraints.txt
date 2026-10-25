@@ -10,7 +10,7 @@
 
 certifi>=2026.10.19
 cryptography>=50.0.2
-filelock>=4.2.1
+filelock>=4.2.4
 fonttools>=4.67.0
 h11>=0.16.0
 httplib2>=0.32.0
