@@ -18,7 +18,7 @@ Following the [Model Cards for Model Reporting](https://arxiv.org/abs/1810.03993
 | **Parameters** | ~20.9M |
 | **Framework** | TensorFlow / Keras, served via Flask |
 | **Licence** | Apache-2.0 (weights and code); training data licensed separately |
-| **Maintainer** | MoleCare — info@molecare.co.uk |
+| **Maintainer** | Yauhen Bichel (MoleCare) — info@molecare.co.uk |
 
 ## Training data
 
