@@ -161,6 +161,36 @@ curl -s -X POST http://localhost:5000/predict \
 See `ml_model_serving/` for route definitions and response schemas. Responses include a
 non-diagnostic disclaimer.
 
+### Which fields are stable, and which are text
+
+Client code should branch on stable values and only display text. **Never match on an
+English sentence**: the wording can change, and it will be translated
+([#42](https://github.com/MoleCare/molecare-ml/issues/42),
+[#43](https://github.com/MoleCare/molecare-ml/issues/43),
+[#44](https://github.com/MoleCare/molecare-ml/issues/44)).
+
+| Field | Kind | Notes |
+|---|---|---|
+| `melanomaProbability`, `risk_score`, `evolution_score`, `change_value`, `change_percent` | Stable number | Never localized |
+| `percent` | Stable number, deprecated | P(**not** melanoma) as 0-100; use `melanomaProbability` |
+| `predictionid`, `status` | Stable value | `status` mirrors the HTTP status |
+| `risk_level`, `evolution_risk` | Stable code | Keep the English value in code; choose your own display text |
+| `evolution_detected` | Stable boolean | |
+| `code` on an error | Stable value | The HTTP status, or a string such as `model_unavailable` |
+| `disclaimer` | Text | Clinical-safety reviewed wording. Show it whole; don't shorten it |
+| `recommendation`, `recommendations`, `evolution_message`, `summary` | Text | Display only |
+| `name`, `description`, `error`, `message` on an error | Text | Display only; use `code` and the HTTP status for logic |
+
+Errors have the form `{"code", "name", "description"}`, except when a model is
+unavailable: then `/predict-advanced` and `/compare-models` return
+`{"status": 503, "code": "model_unavailable", "error"}`.
+
+Open translation work: [#42](https://github.com/MoleCare/molecare-ml/issues/42) disclaimers,
+[#43](https://github.com/MoleCare/molecare-ml/issues/43) recommendations and evolution messages,
+[#44](https://github.com/MoleCare/molecare-ml/issues/44) `Accept-Language` support,
+[#47](https://github.com/MoleCare/molecare-ml/issues/47) the review process,
+[#48](https://github.com/MoleCare/molecare-ml/issues/48) message catalogs.
+
 ---
 
 ## Models & licenses
